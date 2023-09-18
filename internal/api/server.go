@@ -82,19 +82,8 @@ func StartServer() {
 	log.Println("Server start up")
 
 	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-	})
 
 	r.LoadHTMLGlob("templates/*")
-
-	r.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "main_page.tmpl", gin.H{
-			"roads": roads,
-		})
-	})
 
 	r.GET("/road/:id", func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
@@ -109,9 +98,15 @@ func StartServer() {
 		c.HTML(http.StatusOK, "info.tmpl", road)
 	})
 
-	r.GET("/search", func(c *gin.Context) {
+	r.GET("/", func(c *gin.Context) {
 
 		searchQuery := c.DefaultQuery("fsearch", "")
+
+		if searchQuery == "" {
+			c.HTML(http.StatusOK, "main_page.tmpl", gin.H{
+				"roads": roads,
+			})
+		}
 
 		var result []Road
 
