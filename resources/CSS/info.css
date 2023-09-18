@@ -1,0 +1,92 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #A0AECD;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #000000;
+    color: #f0f0f0;
+    text-align: center;
+    padding: 40px 0;
+    height: 5px;
+    line-height: 7px; /* Отрицательное значение line-height для поднятия текста вверх */
+
+}
+
+.header-content {
+    max-width: 800px;
+    margin: 0 auto;
+    font-family: Georgia;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* Тень текста */
+    
+}
+
+/* Стили для заголовка и девиза */
+h1 {
+    font-size: 2rem;
+    margin: 0;
+    font-family: Georgia;
+    font-weight: bold;
+}
+
+
+
+.container {
+    max-width: 2000px;
+    margin: 20px auto;
+    display: flex;
+
+}
+
+.photo {
+    flex: 1;
+    padding: 20px;
+    position: relative;
+
+}
+
+.photo img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border: 2px solid #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    border-radius: 8px 8px 8px 8px;
+}
+
+.description {
+    flex: 1;
+    background-color: #A0AECD;
+    padding: 20px;
+    text-align: left; /* Выравнивание текста по левому краю */
+    font-family: Georgia, serif; /* Использование шрифта Georgia */
+    color: #000000; /* Цвет текста */
+    font-size: 1.5rem;
+}
+
+.description ul {
+    list-style-type: none;
+    padding: 0;
+    text-align: left; /* Выравнивание текста внутри <li> по левому краю */
+}
+
+.description li {
+    margin-bottom: 20px;
+}
+
+.p {
+    text-align: center; /* Центрирование текста по горизонтали */
+    font-family: Georgia, serif; /* Использование шрифта Georgia */
+    color: #fff; /* Цвет текста */
+}
+
+.tmp {
+    text-align: center; /* Выравнивание текста по центру */
+    text-transform: uppercase; /* Преобразование текста в заглавные буквы */
+    font-size: 2rem; /* Установка желаемого размера шрифта */
+    font-weight: bold; /* Жирное начертание */
+    color: #000000; /* Цвет текста */
+}
+

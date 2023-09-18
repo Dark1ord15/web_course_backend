@@ -1,0 +1,137 @@
+/* main_page.css */
+
+/* Стили для body и фона */
+body {
+    font-family: Arial, sans-serif;
+    background: #A0AECD;
+    margin: 0;
+    padding: 0;
+}
+
+/* Стили для header */
+header {
+    background-color: #000000;
+    color: #f0f0f0;
+    text-align: center;
+    padding: 40px 0;
+    height: 5px;
+    line-height: 7px; /* Отрицательное значение line-height для поднятия текста вверх */
+
+}
+
+.header-content {
+    max-width: 800px;
+    margin: 0 auto;
+    font-family: Georgia;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* Тень текста */
+    
+}
+
+/* Стили для заголовка и девиза */
+h1 {
+    font-size: 2rem;
+    margin: 0;
+    font-family: Georgia;
+    font-weight: bold;
+}
+
+
+
+
+/* Стили для поисковой строки */
+.search-container {
+    max-width: 800px;
+    margin: 20px auto;
+    text-align: center;
+}
+
+.search-bar {
+    display: flex;
+    justify-content: center; /* Выравниваем элементы по центру по горизонтали */
+    align-items: center; /* Выравниваем элементы по центру по вертикали */
+}
+
+input[type="text"] {
+    padding: 10px !important;
+    width: 70% !important;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    margin-right: 10px; /* Добавляем отступ между полем для поиска и кнопкой */
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #000000;
+    color: #f0f0f0;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+/* Стили для карточек */
+.container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Задаем 3 колонки с равной шириной */
+    grid-gap: 10px; 
+    margin-right: 200px; /* Отступ справа */
+    margin-left: 200px; /* Отступ слева */
+    margin-top: 50px; /* Отступ сверху для всей сетки */
+    margin-bottom: 50px; /* Отступ снизу для всей сетки */
+    grid-row-gap: 50px; /* Увеличиваем расстояние между рядами на 20px */
+}
+
+
+.card {
+    background-color: #DE5935;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 20PX auto; 
+    flex: 1;
+    text-align: center;
+    overflow: hidden;
+    width: 80%;
+
+}
+
+.card-image {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px 8px 0 0;
+    width: 100%;
+    height: 100%;
+    
+}
+
+.card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
+}
+.card-image h2 {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    margin: 0;
+    padding: 10px;
+    font-size: 1.1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: color 0.3s ease-in-out; 
+}
+
+h2:hover {
+    color: #ca790f; 
+}
+.card:hover .card-image img {
+    transform: scale(1.05);
+}
+
+.card:hover .card-image h2 {
+    opacity: 1;
+}

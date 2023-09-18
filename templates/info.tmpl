@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Name}}</title>
+    <link rel="stylesheet" href="/css/info.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Платные дороги</h1>
+        </div>
+    </header>
+
+    <div class="tmp">
+        <p>{{.Name}}</p1>
+    </div>
+
+    <div class="container">
+        <div class="photo">
+            <img src={{.Image}} >
+        </div>
+        <div class="description">
+            
+            <ul>
+                <li>В доверительном управлении: {{.TrustManagement}} км</li>
+                <li>Протяженность трассы: {{.Lenght}} км</li>
+                <li>Протяженность платных участков: {{.PaidLenght}} км</li>
+                <li>Категория дороги: {{.Category}}</li>
+                <li>Число полос движения: {{.NumberOfStripes}}</li>
+                <li>Разрешенная скорость: до {{.Speed}} км/ч</li>
+                <!-- Добавьте другие пункты описания здесь -->
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
