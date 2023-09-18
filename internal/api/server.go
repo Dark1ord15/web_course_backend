@@ -123,6 +123,7 @@ func StartServer() {
 
 		c.HTML(http.StatusOK, "main_page.tmpl", gin.H{
 			"roads": result,
+			"Query": searchQuery,
 		})
 	})
 	r.Static("/image", "./resources/image")
