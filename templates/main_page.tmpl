@@ -26,6 +26,7 @@
         {{range .roads}}
         <div class="card">
             <div class="card-image">
+                <span class="delete-icon">×</span>
                 <!-- Карточки с изображениями и названиями -->
                 <img src="{{.Image}}">
                 <h2><a href="/road/{{.Id}}" style="text-decoration: none; color: inherit;">{{.Name}}</a></h2>

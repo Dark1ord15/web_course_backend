@@ -9,5 +9,6 @@ type Road struct {
 	Category        string
 	NumberOfStripes string
 	Speed           int
+	Price           int
 	Image           string
 }
