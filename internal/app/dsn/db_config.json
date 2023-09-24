@@ -1,0 +1,7 @@
+{
+    "DBHost": "localhost",
+    "DBPort": "5432",
+    "DBUser": "bmstu_user",
+    "DBPass": "bmstu_password",
+    "DBName": "bmstu"
+  }

@@ -1,14 +1,13 @@
-package api
+package app
 
 import (
+	"Road_services/internal/app/ds"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
-
-	"database/sql"
 
 	_ "github.com/lib/pq" // Для PostgreSQL
 )
@@ -88,44 +87,76 @@ import (
 // 	},
 // }
 
-func setupDB() (*sql.DB, error) {
-	// Здесь используйте значения из ваших переменных окружения или файла конфигурации
-	connectionString := "user=bmstu_user password=bmstu_password dbname=bmstu sslmode=disable"
+// func setupDB() (*sql.DB, error) {
+// 	// Здесь используйте значения из ваших переменных окружения или файла конфигурации
+// 	connectionString := "user=bmstu_user password=bmstu_password dbname=bmstu sslmode=disable"
 
-	db, err := sql.Open("postgres", connectionString)
-	if err != nil {
-		return nil, err
-	}
+// 	db, err := sql.Open("postgres", connectionString)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	return db, nil
-}
+// 	return db, nil
+// }
 
-func StartServer() {
+func (a *Application) StartServer() {
 	log.Println("Server start up")
-
-	db, err := setupDB()
-	if err != nil {
-		log.Fatalf("Failed to connect to the database: %v", err)
-	}
-	defer db.Close()
-
-	rows, err := db.Query(`SELECT "RoadID", "Name", "TrustManagment", "Lenght", "PaidLenght", "Category", "NumberOfStripes", "Speed", "Price", "Image" FROM public."Road"`)
-	if err != nil {
-		log.Fatalf("Failed to query the database: %v", err)
-	}
-	defer rows.Close()
-
-	var roads []Road
-
-	for rows.Next() {
-		var road Road
-		if err := rows.Scan(&road.Id, &road.Name, &road.TrustManagement, &road.Lenght, &road.PaidLenght, &road.Category, &road.NumberOfStripes, &road.Speed, &road.Price, &road.Image); err != nil {
-			log.Fatalf("Failed to scan row: %v", err)
-		}
-		roads = append(roads, road)
-	}
-
 	r := gin.Default()
+	// db, err := setupDB()
+	// if err != nil {
+	// 	log.Fatalf("Failed to connect to the database: %v", err)
+	// }
+	// defer db.Close()
+
+	// rows, err := db.Query(`SELECT "RoadID", "Name", "TrustManagment", "Lenght", "PaidLenght", "Category", "NumberOfStripes", "Speed", "Price", "Image" FROM public."Road" ORDER BY "RoadID" ASC`)
+	// if err != nil {
+	// 	log.Fatalf("Failed to query the database: %v", err)
+	// }
+	// defer rows.Close()
+
+	// var roads []Road
+
+	// for rows.Next() {
+	// 	var road Road
+	// 	if err := rows.Scan(&road.Id, &road.Name, &road.TrustManagement, &road.Lenght, &road.PaidLenght, &road.Category, &road.NumberOfStripes, &road.Speed, &road.Price, &road.Image); err != nil {
+	// 		log.Fatalf("Failed to scan row: %v", err)
+	// 	}
+	// 	roads = append(roads, road)
+	// }
+	var roads []ds.Road
+	roads, err := a.repository.GetAllRoads()
+	if err != nil { // если не получилось
+		log.Printf("cant get product by id %v", err)
+		return
+	}
+	log.Println(roads[0].RoadID)
+	log.Println(roads[1].RoadID)
+	log.Println(roads[2].RoadID)
+	log.Println(roads[3].RoadID)
+	r.GET("/", func(c *gin.Context) {
+
+		searchQuery := c.DefaultQuery("fsearch", "")
+
+		if searchQuery == "" {
+			c.HTML(http.StatusOK, "index.tmpl", gin.H{
+				"services": roads,
+			})
+			return
+		}
+
+		var result []ds.Road
+
+		for _, road := range roads {
+			if strings.Contains(strings.ToLower(road.Name), strings.ToLower(searchQuery)) {
+				result = append(result, road)
+			}
+		}
+
+		c.HTML(http.StatusOK, "index.tmpl", gin.H{
+			"services":    result,
+			"search_text": searchQuery,
+		})
+	})
 
 	r.LoadHTMLGlob("templates/*")
 
@@ -142,29 +173,29 @@ func StartServer() {
 		c.HTML(http.StatusOK, "info.tmpl", road)
 	})
 
-	r.GET("/", func(c *gin.Context) {
+	// r.GET("/", func(c *gin.Context) {
 
-		searchQuery := c.DefaultQuery("fsearch", "")
+	// 	searchQuery := c.DefaultQuery("fsearch", "")
 
-		if searchQuery == "" {
-			c.HTML(http.StatusOK, "main_page.tmpl", gin.H{
-				"roads": roads,
-			})
-			return
-		}
+	// 	if searchQuery == "" {
+	// 		c.HTML(http.StatusOK, "main_page.tmpl", gin.H{
+	// 			"roads": roads,
+	// 		})
+	// 		return
+	// 	}
 
-		var result []Road
-		for _, road := range roads {
-			if strings.Contains(strings.ToLower(road.Name), strings.ToLower(searchQuery)) {
-				result = append(result, road)
-			}
-		}
+	// 	var result []Road
+	// 	for _, road := range roads {
+	// 		if strings.Contains(strings.ToLower(road.Name), strings.ToLower(searchQuery)) {
+	// 			result = append(result, road)
+	// 		}
+	// 	}
 
-		c.HTML(http.StatusOK, "main_page.tmpl", gin.H{
-			"roads": result,
-			"Query": searchQuery,
-		})
-	})
+	// 	c.HTML(http.StatusOK, "main_page.tmpl", gin.H{
+	// 		"roads": result,
+	// 		"Query": searchQuery,
+	// 	})
+	// })
 	r.Static("/image", "./resources/image")
 	r.Static("/css", "./resources/css")
 
