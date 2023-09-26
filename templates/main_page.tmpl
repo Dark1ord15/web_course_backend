@@ -26,10 +26,13 @@
         {{range .roads}}
         <div class="card">
             <div class="card-image">
-                <span class="delete-icon">×</span>
+            <form action="/delete/{{.Roadid}}" method="post">
+
+                <button class="delete-icon">×</button>
+                </form>
                 <!-- Карточки с изображениями и названиями -->
                 <img src="{{.Image}}">
-                <h2><a href="/road/{{.RoadID}}" style="text-decoration: none; color: inherit;">{{.Name}}</a></h2>
+                <h2><a href="/road/{{.Roadid}}" style="text-decoration: none; color: inherit;">{{.Name}}</a></h2>
             </div>
         </div>
         {{end}}

@@ -123,23 +123,20 @@ func (a *Application) StartServer() {
 	// 	}
 	// 	roads = append(roads, road)
 	// }
-	var roads []ds.Road
-	roads, err := a.repository.GetAllRoads()
-	if err != nil { // если не получилось
-		log.Printf("cant get product by id %v", err)
-		return
-	}
-	log.Println(roads[0].RoadID)
-	log.Println(roads[1].RoadID)
-	log.Println(roads[2].RoadID)
-	log.Println(roads[3].RoadID)
+
 	r.GET("/", func(c *gin.Context) {
 
+		var roads []ds.Road
+		roads, err := a.repository.GetAllRoads()
+		if err != nil { // если не получилось
+			log.Printf("cant get product by id %v", err)
+			return
+		}
 		searchQuery := c.DefaultQuery("fsearch", "")
 
 		if searchQuery == "" {
-			c.HTML(http.StatusOK, "index.tmpl", gin.H{
-				"services": roads,
+			c.HTML(http.StatusOK, "main_page.tmpl", gin.H{
+				"roads": roads,
 			})
 			return
 		}
@@ -152,15 +149,33 @@ func (a *Application) StartServer() {
 			}
 		}
 
-		c.HTML(http.StatusOK, "index.tmpl", gin.H{
-			"services":    result,
-			"search_text": searchQuery,
+		c.HTML(http.StatusOK, "main_page.tmpl", gin.H{
+			"roads": result,
+			"Query": searchQuery,
 		})
+	})
+
+	r.POST("/delete/:id", func(c *gin.Context) {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			//обработка ошибка
+			log.Printf("cant get product by id %v", err)
+			c.Redirect(http.StatusMovedPermanently, "/")
+			return
+		}
+		a.repository.DeleteRoad(id)
+		c.Redirect(http.StatusMovedPermanently, "/")
 	})
 
 	r.LoadHTMLGlob("templates/*")
 
 	r.GET("/road/:id", func(c *gin.Context) {
+		var roads []ds.Road
+		roads, err := a.repository.GetAllRoads()
+		if err != nil { // если не получилось
+			log.Printf("cant get product by id %v", err)
+			return
+		}
 		id, err := strconv.Atoi(c.Param("id"))
 
 		if err != nil {

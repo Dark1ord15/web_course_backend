@@ -3,17 +3,17 @@ package ds
 import "time"
 
 type Road struct {
-	RoadID          uint   `gorm:"primaryKey"`
+	Roadid          uint   `gorm:"primaryKey"`
 	Name            string `gorm:"size:100"`
-	TrustManagement int
+	Trustmanagment  int
 	Length          int
-	PaidLength      int
+	Paidlength      int
 	Category        string `gorm:"size:50"`
-	NumberOfStripes string `gorm:"size:10"`
+	Numberofstripes string `gorm:"size:10"`
 	Speed           int
 	Price           int
 	Image           string `gorm:"size:255"`
-	StatusRoad      string `gorm:"size:10"`
+	Statusroad      string `gorm:"size:10"`
 }
 
 type TravelRequest struct {

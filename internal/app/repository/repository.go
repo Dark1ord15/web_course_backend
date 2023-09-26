@@ -40,10 +40,14 @@ func (r *Repository) CreateRoad(road ds.Road) error {
 func (r *Repository) GetAllRoads() ([]ds.Road, error) {
 	var roads []ds.Road
 
-	err := r.db.Find(&roads).Error
+	err := r.db.Order("RoadID ASC").Find(&roads, "Statusroad::text='active'").Error
 	if err != nil {
 		return nil, err
 	}
 
 	return roads, nil
+}
+
+func (r *Repository) DeleteRoad(id int) error {
+	return r.db.Exec("Update roads SET Statusroad = 'deleted' WHERE roadid=?", id).Error
 }
