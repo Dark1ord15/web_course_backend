@@ -140,10 +140,12 @@ h2:hover {
 /* Стили для иконки удаления */
 .delete-icon {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    color: red;
-    font-size: 30px;
+    top: 0px;
+    right: 0px;
+    color: rgb(220, 24, 24);
+    background-color: transparent; /* Делаем фон кнопки прозрачным */
+    border: none; /* Убираем границу кнопки */
+    font-size: 26px; /* Уменьшаем размер иконки */
     cursor: pointer;
     
     z-index: 1; /* Устанавливаем z-index, чтобы крестик был поверх других элементов */

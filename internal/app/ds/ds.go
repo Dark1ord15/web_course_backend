@@ -14,6 +14,8 @@ type Road struct {
 	Price           int
 	Image           string `gorm:"size:255"`
 	Statusroad      string `gorm:"size:10"`
+	Startofsection  int
+	Endofsection    int
 }
 
 type TravelRequest struct {
