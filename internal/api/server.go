@@ -1,152 +1,38 @@
 package app
 
 import (
+	"Road_services/internal/app/controllers"
 	"Road_services/internal/app/ds"
+	"Road_services/internal/app/repository"
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 
 	_ "github.com/lib/pq" // Для PostgreSQL
 )
 
-// var roads = []Road{
-// 	{
-// 		Id:              1,
-// 		Name:            "М-1 'Беларусь' 33км-66км",
-// 		TrustManagement: 516,
-// 		Lenght:          456,
-// 		PaidLenght:      33,
-// 		Category:        "1Б,1В",
-// 		NumberOfStripes: "4-8",
-// 		Speed:           110,
-// 		Price:           150,
-// 		Image:           "/image/М1.png",
-// 	},
-// 	{
-// 		Id:              2,
-// 		Name:            "М-3 'Украина' 124км-194км",
-// 		TrustManagement: 454,
-// 		Lenght:          510,
-// 		PaidLenght:      70,
-// 		Category:        "1Б,II,III",
-// 		NumberOfStripes: "2-8",
-// 		Speed:           110,
-// 		Price:           250,
-// 		Image:           "/image/М3.png",
-// 	},
-// 	{
-// 		Id:              3,
-// 		Name:            "М-4 'Дон' 21км-1319км",
-// 		TrustManagement: 1930,
-// 		Lenght:          1542,
-// 		PaidLenght:      1042,
-// 		Category:        "1А,1Б,1В,II",
-// 		NumberOfStripes: "2-8",
-// 		Speed:           130,
-// 		Price:           3500,
-// 		Image:           "/image/М4.png",
-// 	},
-// 	{
-// 		Id:              4,
-// 		Name:            "М-11 'Нева' 77км-684км",
-// 		TrustManagement: 619,
-// 		Lenght:          669,
-// 		PaidLenght:      607,
-// 		Category:        "1А",
-// 		NumberOfStripes: "4-10",
-// 		Speed:           130,
-// 		Price:           5000,
-// 		Image:           "/image/М11.png",
-// 	},
-// 	{
-// 		Id:              5,
-// 		Name:            "М-12 'Восток' 56км-471км",
-// 		TrustManagement: 415,
-// 		Lenght:          811,
-// 		PaidLenght:      415,
-// 		Category:        "1Б",
-// 		NumberOfStripes: "4-6",
-// 		Speed:           110,
-// 		Price:           2800,
-// 		Image:           "/image/М12.png",
-// 	},
-// 	{
-// 		Id:              6,
-// 		Name:            "ЦКАД",
-// 		TrustManagement: 336,
-// 		Lenght:          336,
-// 		PaidLenght:      260,
-// 		Category:        "1A, II",
-// 		NumberOfStripes: "4",
-// 		Speed:           110,
-// 		Price:           2000,
-// 		Image:           "/image/ЦКАД.png",
-// 	},
-// }
-
-// func setupDB() (*sql.DB, error) {
-// 	// Здесь используйте значения из ваших переменных окружения или файла конфигурации
-// 	connectionString := "user=bmstu_user password=bmstu_password dbname=bmstu sslmode=disable"
-
-// 	db, err := sql.Open("postgres", connectionString)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return db, nil
-// }
-
 func (a *Application) StartServer() {
 	log.Println("Server start up")
 	r := gin.Default()
-	// db, err := setupDB()
-	// if err != nil {
-	// 	log.Fatalf("Failed to connect to the database: %v", err)
-	// }
-	// defer db.Close()
-
-	// rows, err := db.Query(`SELECT "RoadID", "Name", "TrustManagment", "Lenght", "PaidLenght", "Category", "NumberOfStripes", "Speed", "Price", "Image" FROM public."Road" ORDER BY "RoadID" ASC`)
-	// if err != nil {
-	// 	log.Fatalf("Failed to query the database: %v", err)
-	// }
-	// defer rows.Close()
-
-	// var roads []Road
-
-	// for rows.Next() {
-	// 	var road Road
-	// 	if err := rows.Scan(&road.Id, &road.Name, &road.TrustManagement, &road.Lenght, &road.PaidLenght, &road.Category, &road.NumberOfStripes, &road.Speed, &road.Price, &road.Image); err != nil {
-	// 		log.Fatalf("Failed to scan row: %v", err)
-	// 	}
-	// 	roads = append(roads, road)
-	// }
 
 	r.GET("/", func(c *gin.Context) {
-
-		var roads []ds.Road
-		roads, err := a.repository.GetAllRoads()
-		if err != nil { // если не получилось
-			log.Printf("cant get product by id %v", err)
-			return
-		}
 		searchQuery := c.DefaultQuery("fsearch", "")
 
+		var result []ds.Road
+		var err error
+
 		if searchQuery == "" {
-			c.HTML(http.StatusOK, "main_page.tmpl", gin.H{
-				"roads": roads,
-			})
-			return
+			result, err = a.repository.GetAllRoads()
+		} else {
+			result, err = a.repository.SearchRoads(searchQuery)
 		}
 
-		var result []ds.Road
-
-		for _, road := range roads {
-			if strings.Contains(strings.ToLower(road.Name), strings.ToLower(searchQuery)) {
-				result = append(result, road)
-			}
+		if err != nil {
+			log.Printf("Error while fetching data: %v", err)
+			c.HTML(http.StatusInternalServerError, "error.tmpl", nil) // Обработка ошибки
+			return
 		}
 
 		c.HTML(http.StatusOK, "main_page.tmpl", gin.H{
@@ -188,31 +74,35 @@ func (a *Application) StartServer() {
 		c.HTML(http.StatusOK, "info.tmpl", road)
 	})
 
-	// r.GET("/", func(c *gin.Context) {
-
-	// 	searchQuery := c.DefaultQuery("fsearch", "")
-
-	// 	if searchQuery == "" {
-	// 		c.HTML(http.StatusOK, "main_page.tmpl", gin.H{
-	// 			"roads": roads,
-	// 		})
-	// 		return
-	// 	}
-
-	// 	var result []Road
-	// 	for _, road := range roads {
-	// 		if strings.Contains(strings.ToLower(road.Name), strings.ToLower(searchQuery)) {
-	// 			result = append(result, road)
-	// 		}
-	// 	}
-
-	// 	c.HTML(http.StatusOK, "main_page.tmpl", gin.H{
-	// 		"roads": result,
-	// 		"Query": searchQuery,
-	// 	})
-	// })
 	r.Static("/image", "./resources/image")
 	r.Static("/css", "./resources/css")
+
+	repo, err := repository.New("user=bmstu_user password=bmstu_password dbname=bmstu host=localhost port=5432 sslmode=disable")
+	if err != nil {
+		log.Fatalf("Failed to create repository: %v", err)
+	}
+
+	roadController := controllers.NewRoadController(repo)
+	r.GET("/roads", roadController.ListRoads)
+	r.GET("/roads/:id", roadController.GetRoad)
+	r.POST("/roads", roadController.CreateRoad)
+	r.PUT("/roads/:id", roadController.UpdateRoad)
+	r.DELETE("/roads/:id", roadController.DeleteRoad)
+	r.POST("/add_road_to_last_request/:roadID", roadController.AddRoadToLastTravelRequest)
+	r.POST("/road_travel_request/:roadID", roadController.AddRoadToTravelRequest)
+	r.PUT("/road_add_image/:id", roadController.AddConsultationImage)
+
+	travelRequestController := controllers.NewTravelRequestController(repo)
+	r.GET("/travelrequests", travelRequestController.ListTravelRequests)
+	r.GET("/travelrequests/:id", travelRequestController.GetTravelRequestByID)
+	r.PUT("/travelrequests/:id", travelRequestController.UpdateTravelRequest)
+	// r.DELETE("/travelrequests/:id", travelRequestController.DeleteTravelRequest)
+	r.PUT("/travelrequests/change-status-user/:id", travelRequestController.ChangeRequestStatusByUser)
+	r.PUT("/travelrequests/change-status-moderator/:id", travelRequestController.ChangeRequestStatusByModerator)
+	r.DELETE("/travelrequests/:id", travelRequestController.SoftDeleteTravelRequest)
+
+	travelRequestRoadController := controllers.NewTravelRequestRoadController(repo)
+	r.DELETE("/travelrequestroads/:requestID/:roadID", travelRequestRoadController.PhysicalDeleteRoadFromTravelRequest)
 
 	r.Run(":8080") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 

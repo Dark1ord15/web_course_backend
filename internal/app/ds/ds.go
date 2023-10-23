@@ -18,20 +18,20 @@ type Road struct {
 	Endofsection    int
 }
 
-type TravelRequest struct {
-	TravelRequestID uint `gorm:"primaryKey"`
-	UserID          uint
-	RequestStatus   string `gorm:"size:100"`
-	CreationDate    time.Time
-	FormationDate   time.Time
-	CompletionDate  time.Time
-	ModeratorID     uint
+type Travelrequest struct {
+	Travelrequestid uint `gorm:"primaryKey"`
+	Userid          uint
+	Requeststatus   string    `gorm:"size:100"`
+	Creationdate    time.Time `gorm:"default:NULL"`
+	Formationdate   time.Time `gorm:"default:NULL"`
+	Completiondate  time.Time `gorm:"default:NULL"`
+	Moderatorid     uint      `gorm:"default:NULL"`
 }
 
-type TravelRequestRoad struct {
-	TravelRequestRoadID uint `gorm:"primaryKey"`
-	TravelRequestID     uint
-	RoadID              uint
+type Travelrequestroad struct {
+	Travelrequestroadid uint `gorm:"primaryKey"`
+	Travelrequestid     uint
+	Roadid              uint
 }
 
 type User struct {
