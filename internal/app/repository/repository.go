@@ -144,19 +144,29 @@ func (r *Repository) GetAllTravelRequests() ([]ds.Travelrequest, error) {
 	return requests, nil
 }
 
-// Получение заявки по идентификатору
-func (r *Repository) GetTravelRequestByID(id uint) (ds.Travelrequest, error) {
-	var request ds.Travelrequest
-	err := r.db.First(&request, id).Error
+func (r *Repository) GetAllUserRequests(userID uint) ([]ds.Travelrequest, error) {
+	var requests []ds.Travelrequest
+	err := r.db.Find(&requests, "userid = ?", userID).Error
+	if err != nil {
+		return nil, err
+	}
+	return requests, nil
+}
+
+func (r *Repository) GetTravelRequestByID(userID uint) (ds.Travelrequest, error) {
+	var travelRequest ds.Travelrequest
+
+	err := r.db.Where("userid = ? AND requeststatus = ?", userID, "introduced").First(&travelRequest).Error
 	if err != nil {
 		return ds.Travelrequest{}, err
 	}
-	return request, nil
+
+	return travelRequest, nil
 }
 
 func (r *Repository) GetRoadsByMinLength(minLength int) ([]ds.Road, error) {
 	var roads []ds.Road
-	err := r.db.Where("Endofsection - Startofsection >= ?", minLength).Find(&roads).Error
+	err := r.db.Where("Endofsection - Startofsection >= ?", minLength).Order("RoadID ASC").Find(&roads, "Statusroad::text='active'").Error
 	if err != nil {
 		return nil, err
 	}
@@ -321,4 +331,52 @@ func (r *Repository) AddConsultationImage(id int, imageBytes []byte, contentType
 	}
 
 	return nil
+}
+
+// Метод для получения id заявки со статусом "introduced".
+func (r *Repository) GetRequestIdWithStatusAndUser(status string, userID uint) uint {
+	var requestID uint
+
+	// Ваш запрос к базе данных для получения id заявки с указанным статусом для конкретного пользователя.
+	if err := r.db.Model(&ds.Travelrequest{}).Where("Requeststatus = ? AND Userid = ?", status, userID).Select("Travelrequestid").First(&requestID).
+		Error; err != nil {
+		// Если запись не найдена, возвращаем 0.
+		return 0
+	}
+
+	return requestID
+}
+
+func (r *Repository) Login() (*ds.User, error) {
+	return nil, nil
+}
+
+func (r *Repository) Register(user *ds.User) error {
+	return r.db.Create(user).Error
+}
+
+func (r *Repository) Logout() (*ds.User, error) {
+	return nil, nil
+}
+
+func (r *Repository) GetUserByLogin(login string) (*ds.User, error) {
+	user := &ds.User{
+		Login: login,
+	}
+
+	err := r.db.Where(user).First(user).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (r *Repository) GetTravelRequestByID2(id uint) (ds.Travelrequest, error) {
+	var request ds.Travelrequest
+	err := r.db.First(&request, id).Error
+	if err != nil {
+		return ds.Travelrequest{}, err
+	}
+	return request, nil
 }

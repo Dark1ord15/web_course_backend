@@ -18,12 +18,34 @@ func NewRoadController(repo *repository.Repository) *RoadController {
 	return &RoadController{repo: repo}
 }
 
+type response struct {
+	RequestID string    `json:"requestID"`
+	Roads     []ds.Road `json:"roads"`
+}
+
+// @Summary Get Roads
+// @Description Get all roads
+// @Tags Roads
+// @ID get-roads
+// @Produce json
+// @Success 200 {object} response
+// @Failure 400 {object} ds.Road "Некорректный запрос"
+// @Failure 404 {object} ds.Road "Некорректный запрос"
+// @Failure 500 {object} ds.Road "Ошибка сервера"
+// @Router /roads [get]
 func (rc *RoadController) ListRoads(c *gin.Context) {
 	// Получите параметр minLength из запроса, если предоставлен.
 	minLengthStr := c.DefaultQuery("minLength", "")
 
 	var roads []ds.Road
 	var err error
+	userID, _ := c.Value("userID").(uint)
+	// Ваш запрос для получения id заявки со статусом introduced
+	requestID := rc.repo.GetRequestIdWithStatusAndUser("introduced", userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 
 	if minLengthStr != "" {
 		// Фильтруйте дороги по минимальной длине.
@@ -43,9 +65,27 @@ func (rc *RoadController) ListRoads(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, roads)
+	// Добавьте id заявки в ответ
+	response := gin.H{
+		"requestID": requestID,
+		"roads":     roads,
+	}
+
+	c.JSON(http.StatusOK, response)
 }
 
+// @Summary Get Road by ID
+// @Description Show road by ID
+// @Tags Roads
+// @ID id
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "ID дороги"
+// @Success 200 {object} ds.Road
+// @Failure 400 {object} ds.Road "Некорректный запрос"
+// @Failure 404 {object} ds.Road "Некорректный запрос"
+// @Failure 500 {object} ds.Road "Ошибка сервера"
+// @Router /roads/{id} [get]
 func (rc *RoadController) GetRoad(c *gin.Context) {
 	roadID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -68,6 +108,19 @@ func (rc *RoadController) GetRoad(c *gin.Context) {
 	c.JSON(http.StatusOK, road)
 }
 
+// @Summary create road
+// @Security ApiKeyAuth
+// @Description create road
+// @Tags Roads
+// @ID create-road
+// @Accept json
+// @Produce json
+// @Param input body ds.Road true "road info"
+// @Success 200 {string} string
+// @Failure 400 {object} ds.Road "Некорректный запрос"
+// @Failure 404 {object} ds.Road "Некорректный запрос"
+// @Failure 500 {object} ds.Road "Ошибка сервера"
+// @Router /roads [post]
 func (rc *RoadController) CreateRoad(c *gin.Context) {
 	var newRoad ds.Road
 	if err := c.ShouldBindJSON(&newRoad); err != nil {
@@ -83,6 +136,20 @@ func (rc *RoadController) CreateRoad(c *gin.Context) {
 	c.JSON(http.StatusCreated, newRoad)
 }
 
+// @Summary update croad
+// @Security ApiKeyAuth
+// @Description update road
+// @Tags Roads
+// @ID update-road
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "ID дороги"
+// @Param input body ds.Road true "consultation info"
+// @Success 200 {string} string
+// @Failure 400 {object} ds.Road "Некорректный запрос"
+// @Failure 404 {object} ds.Road "Некорректный запрос"
+// @Failure 500 {object} ds.Road "Ошибка сервера"
+// @Router /roads/{id} [put]
 func (rc *RoadController) UpdateRoad(c *gin.Context) {
 	roadID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -104,6 +171,19 @@ func (rc *RoadController) UpdateRoad(c *gin.Context) {
 	c.JSON(http.StatusOK, updatedRoad)
 }
 
+// @Summary Delete road by ID
+// @Security ApiKeyAuth
+// @Description Delete road by ID
+// @Tags Roads
+// @ID delete-road-by-id
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "ID дороги"
+// @Success 200 {string} string
+// @Failure 400 {object} ds.Road "Некорректный запрос"
+// @Failure 404 {object} ds.Road "Некорректный запрос"
+// @Failure 500 {object} ds.Road "Ошибка сервера"
+// @Router /roads/{id} [delete]
 func (rc *RoadController) DeleteRoad(c *gin.Context) {
 	roadID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -119,7 +199,6 @@ func (rc *RoadController) DeleteRoad(c *gin.Context) {
 	c.JSON(http.StatusNoContent, nil)
 }
 
-// AddRoadToLastTravelRequest добавляет дорогу к последней заявке.
 func (rc *RoadController) AddRoadToLastTravelRequest(c *gin.Context) {
 	// Прочитайте roadID из запроса
 	roadID, err := strconv.Atoi(c.Param("roadID"))
@@ -136,9 +215,30 @@ func (rc *RoadController) AddRoadToLastTravelRequest(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{"message": "Дорога успешно добавлена к последней заявке"})
 }
+
+// @Summary add road to travelrequest
+// @Security ApiKeyAuth
+// @Description add road to travelrequest
+// @Tags Roads
+// @ID add-road-to-request
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "ID дороги"
+// @Success 200 {string} string
+// @Failure 400 {object} ds.Road "Некорректный запрос"
+// @Failure 404 {object} ds.Road "Некорректный запрос"
+// @Failure 500 {object} ds.Road "Ошибка сервера"
+// @Router /roads/road_travel_request/{id} [post]
 func (rc *RoadController) AddRoadToTravelRequest(c *gin.Context) {
-	userID := rc.repo.GetUserID()
-	roadID, err := strconv.Atoi(c.Param("roadID"))
+	userID, contextError := c.Value("userID").(uint)
+	if !contextError {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Status":  "Failed",
+			"Message": "ошибка при авторизации",
+		})
+		return
+	}
+	roadID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный roadID"})
 		return
@@ -187,7 +287,22 @@ func (rc *RoadController) AddRoadToTravelRequest(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{"message": "Дорога успешно добавлена к заявке пользователя"})
 }
-func (rc *RoadController) AddConsultationImage(c *gin.Context) {
+
+// @Summary Add road image
+// @Security ApiKeyAuth
+// @Description Add an road to a specific consultation by ID.
+// @Tags Roads
+// @ID add-road-image
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "ID дороги"
+// @Param image formData file true "Image file to be uploaded"
+// @Success 200 {string} string
+// @Failure 400 {object} ds.Road "Некорректный запрос"
+// @Failure 404 {object} ds.Road "Некорректный запрос"
+// @Failure 500 {object} ds.Road "Ошибка сервера"
+// @Router /roads/road_add_image/{id} [post]
+func (rc *RoadController) AddRoadImage(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)

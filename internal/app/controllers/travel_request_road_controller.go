@@ -19,6 +19,21 @@ func NewTravelRequestRoadController(repo *repository.Repository) *TravelRequestR
 		repo: repo,
 	}
 }
+
+// @Summary Delete Road From TravelRequest
+// @Security ApiKeyAuth
+// @Description delete road from travelrequest
+// @Tags Road-TravelRequest
+// @ID delete-road-from-travelrequest
+// @Accept       json
+// @Produce      json
+// @Param        requestID   path      int  true  "ID заявки"
+// @Param        roadID   path      int  true  "ID консультации"
+// @Success 200 {string} string "Консультация была удалена из заявки"
+// @Failure 400 {string} string "Некорректный запрос"
+// @Failure 404 {string} string "Некорректный запрос"
+// @Failure 500 {string} string "Ошибка сервера"
+// @Router /travelrequestroads/{requestID}/{roadID} [delete]
 func (tc *TravelRequestRoadController) PhysicalDeleteRoadFromTravelRequest(c *gin.Context) {
 	// Получите ID заявки и ID дороги из параметров запроса.
 	requestIDStr := c.Param("requestID")

@@ -5,6 +5,14 @@ import (
 	"log"
 )
 
+// @title Платные дороги
+// @version 1.0
+// @description Road application
+// @host localhost:8080
+// @BasePath /
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 func main() {
 	log.Println("Application start!")
 

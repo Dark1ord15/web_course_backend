@@ -1,0 +1,1090 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Road application",
+        "title": "Платные дороги",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/auth/login": {
+            "post": {
+                "description": "Login",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Login",
+                "operationId": "login",
+                "parameters": [
+                    {
+                        "description": "login info",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/app.loginReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.loginResp"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/logout": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Logout",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Logout",
+                "operationId": "logout",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/registration": {
+            "post": {
+                "description": "Registration",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Registration",
+                "operationId": "registration",
+                "parameters": [
+                    {
+                        "description": "user info",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ds.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.registerResp"
+                        }
+                    }
+                }
+            }
+        },
+        "/roads": {
+            "get": {
+                "description": "Get all roads",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Roads"
+                ],
+                "summary": "Get Roads",
+                "operationId": "get-roads",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.response"
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Road"
+                        }
+                    },
+                    "404": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Road"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Road"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "create road",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Roads"
+                ],
+                "summary": "create road",
+                "operationId": "create-road",
+                "parameters": [
+                    {
+                        "description": "road info",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ds.Road"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Road"
+                        }
+                    },
+                    "404": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Road"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Road"
+                        }
+                    }
+                }
+            }
+        },
+        "/roads/road_add_image/{id}": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Add an road to a specific consultation by ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Roads"
+                ],
+                "summary": "Add road image",
+                "operationId": "add-road-image",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID дороги",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Image file to be uploaded",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Road"
+                        }
+                    },
+                    "404": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Road"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Road"
+                        }
+                    }
+                }
+            }
+        },
+        "/roads/road_travel_request/{id}": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "add road to travelrequest",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Roads"
+                ],
+                "summary": "add road to travelrequest",
+                "operationId": "add-road-to-request",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID дороги",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Road"
+                        }
+                    },
+                    "404": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Road"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Road"
+                        }
+                    }
+                }
+            }
+        },
+        "/roads/{id}": {
+            "get": {
+                "description": "Show road by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Roads"
+                ],
+                "summary": "Get Road by ID",
+                "operationId": "id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID дороги",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Road"
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Road"
+                        }
+                    },
+                    "404": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Road"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Road"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "update road",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Roads"
+                ],
+                "summary": "update croad",
+                "operationId": "update-road",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID дороги",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "consultation info",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ds.Road"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Road"
+                        }
+                    },
+                    "404": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Road"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Road"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Delete road by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Roads"
+                ],
+                "summary": "Delete road by ID",
+                "operationId": "delete-road-by-id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID дороги",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Road"
+                        }
+                    },
+                    "404": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Road"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Road"
+                        }
+                    }
+                }
+            }
+        },
+        "/travelrequestroads/{requestID}/{roadID}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "delete road from travelrequest",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Road-TravelRequest"
+                ],
+                "summary": "Delete Road From TravelRequest",
+                "operationId": "delete-road-from-travelrequest",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID заявки",
+                        "name": "requestID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "ID консультации",
+                        "name": "roadID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Консультация была удалена из заявки",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/travelrequests": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get all travelrequests",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "TravelRequests"
+                ],
+                "summary": "Get Requests",
+                "operationId": "get-travelrequests",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Travelrequest"
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Travelrequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Travelrequest"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Travelrequest"
+                        }
+                    }
+                }
+            }
+        },
+        "/travelrequests/change-status-moderator/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update travelrequest by moderator",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "TravelRequests"
+                ],
+                "summary": "Update TravelRequest Status By Moderator",
+                "operationId": "update-travelrequest-status-by-moderator",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID заявки",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Travelrequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Travelrequest"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Travelrequest"
+                        }
+                    }
+                }
+            }
+        },
+        "/travelrequests/change-status-user/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update travelrequest status by user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "TravelRequests"
+                ],
+                "summary": "Update TravelRequest Status By User",
+                "operationId": "update-travelrequest-status-by-user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID заявки",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Travelrequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Travelrequest"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Travelrequest"
+                        }
+                    }
+                }
+            }
+        },
+        "/travelrequests/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Show roads by ID of request",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "TravelRequests"
+                ],
+                "summary": "Get Roads by request ID",
+                "operationId": "get-roads-by-id-of-request",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID заявки",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Road"
+                        }
+                    },
+                    "404": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Road"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Road"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update travelrequest by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "TravelRequests"
+                ],
+                "summary": "Update TravelRequest by ID",
+                "operationId": "update-travelrequest-by-id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID заявки",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "request info",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ds.Travelrequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Travelrequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Travelrequest"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Travelrequest"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Delete travelrequest by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "TravelRequests"
+                ],
+                "summary": "Delete TravelRequest by ID",
+                "operationId": "delete-request-by-id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID заявки",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Travelrequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Travelrequest"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Travelrequest"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "app.loginReq": {
+            "type": "object",
+            "properties": {
+                "login": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.loginResp": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "expires_in": {
+                    "type": "integer"
+                },
+                "token_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.registerResp": {
+            "type": "object",
+            "properties": {
+                "ok": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "controllers.Response": {
+            "type": "object",
+            "properties": {
+                "CreationDate": {
+                    "type": "string"
+                },
+                "FormationDate": {
+                    "type": "string"
+                },
+                "ID": {
+                    "type": "integer"
+                },
+                "RequestStatus": {
+                    "type": "string"
+                },
+                "RoadsResponse": {
+                    "$ref": "#/definitions/controllers.RoadsResponse"
+                }
+            }
+        },
+        "controllers.RoadsResponse": {
+            "type": "object",
+            "properties": {
+                "RoadImages": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "RoadNames": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "controllers.response": {
+            "type": "object",
+            "properties": {
+                "requestID": {
+                    "type": "string"
+                },
+                "roads": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ds.Road"
+                    }
+                }
+            }
+        },
+        "ds.Road": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "endofsection": {
+                    "type": "integer"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "length": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "numberofstripes": {
+                    "type": "string"
+                },
+                "paidlength": {
+                    "type": "integer"
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "roadid": {
+                    "type": "integer"
+                },
+                "speed": {
+                    "type": "integer"
+                },
+                "startofsection": {
+                    "type": "integer"
+                },
+                "statusroad": {
+                    "type": "string"
+                },
+                "trustmanagment": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ds.Travelrequest": {
+            "type": "object",
+            "properties": {
+                "completiondate": {
+                    "type": "string"
+                },
+                "creationdate": {
+                    "type": "string"
+                },
+                "formationdate": {
+                    "type": "string"
+                },
+                "moderatorid": {
+                    "type": "integer"
+                },
+                "requeststatus": {
+                    "type": "string"
+                },
+                "travelrequestid": {
+                    "type": "integer"
+                },
+                "userid": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ds.User": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "phoneNumber": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/role.Role"
+                }
+            }
+        },
+        "role.Role": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2
+            ],
+            "x-enum-comments": {
+                "Admin": "2",
+                "Buyer": "0",
+                "Manager": "1"
+            },
+            "x-enum-varnames": [
+                "Buyer",
+                "Manager",
+                "Admin"
+            ]
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

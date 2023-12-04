@@ -1,6 +1,9 @@
 package ds
 
-import "time"
+import (
+	"Road_services/internal/app/role"
+	"time"
+)
 
 type Road struct {
 	Roadid          uint   `gorm:"primaryKey"`
@@ -35,10 +38,11 @@ type Travelrequestroad struct {
 }
 
 type User struct {
-	UserID       uint   `gorm:"primaryKey"`
-	Name         string `gorm:"size:100"`
-	PhoneNumber  string `gorm:"size:15"`
-	EmailAddress string `gorm:"unique;size:100"`
-	Password     string `gorm:"size:100"`
-	Role         string `gorm:"size:100"`
+	Id          uint      `gorm:"primarykey"`
+	Name        string    `json:"name"`
+	Login       string    `json:"login"`
+	Email       string    `json:"email"`
+	PhoneNumber string    `json:"phoneNumber"`
+	Role        role.Role `sql:"type:string;"`
+	Password    string    `gorm:"size:60"`
 }

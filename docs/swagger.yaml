@@ -1,0 +1,710 @@
+basePath: /
+definitions:
+  app.loginReq:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+  app.loginResp:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      token_type:
+        type: string
+    type: object
+  app.registerResp:
+    properties:
+      ok:
+        type: boolean
+    type: object
+  controllers.Response:
+    properties:
+      CreationDate:
+        type: string
+      FormationDate:
+        type: string
+      ID:
+        type: integer
+      RequestStatus:
+        type: string
+      RoadsResponse:
+        $ref: '#/definitions/controllers.RoadsResponse'
+    type: object
+  controllers.RoadsResponse:
+    properties:
+      RoadImages:
+        items:
+          type: string
+        type: array
+      RoadNames:
+        items:
+          type: string
+        type: array
+    type: object
+  controllers.response:
+    properties:
+      requestID:
+        type: string
+      roads:
+        items:
+          $ref: '#/definitions/ds.Road'
+        type: array
+    type: object
+  ds.Road:
+    properties:
+      category:
+        type: string
+      endofsection:
+        type: integer
+      image:
+        type: string
+      length:
+        type: integer
+      name:
+        type: string
+      numberofstripes:
+        type: string
+      paidlength:
+        type: integer
+      price:
+        type: integer
+      roadid:
+        type: integer
+      speed:
+        type: integer
+      startofsection:
+        type: integer
+      statusroad:
+        type: string
+      trustmanagment:
+        type: integer
+    type: object
+  ds.Travelrequest:
+    properties:
+      completiondate:
+        type: string
+      creationdate:
+        type: string
+      formationdate:
+        type: string
+      moderatorid:
+        type: integer
+      requeststatus:
+        type: string
+      travelrequestid:
+        type: integer
+      userid:
+        type: integer
+    type: object
+  ds.User:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      login:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      phoneNumber:
+        type: string
+      role:
+        $ref: '#/definitions/role.Role'
+    type: object
+  role.Role:
+    enum:
+    - 0
+    - 1
+    - 2
+    type: integer
+    x-enum-comments:
+      Admin: "2"
+      Buyer: "0"
+      Manager: "1"
+    x-enum-varnames:
+    - Buyer
+    - Manager
+    - Admin
+host: localhost:8080
+info:
+  contact: {}
+  description: Road application
+  title: Платные дороги
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login
+      operationId: login
+      parameters:
+      - description: login info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/app.loginReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.loginResp'
+      summary: Login
+      tags:
+      - auth
+  /auth/logout:
+    get:
+      description: Logout
+      operationId: logout
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Logout
+      tags:
+      - auth
+  /auth/registration:
+    post:
+      consumes:
+      - application/json
+      description: Registration
+      operationId: registration
+      parameters:
+      - description: user info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/ds.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.registerResp'
+      summary: Registration
+      tags:
+      - auth
+  /roads:
+    get:
+      description: Get all roads
+      operationId: get-roads
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.response'
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Road'
+        "404":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Road'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/ds.Road'
+      summary: Get Roads
+      tags:
+      - Roads
+    post:
+      consumes:
+      - application/json
+      description: create road
+      operationId: create-road
+      parameters:
+      - description: road info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/ds.Road'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Road'
+        "404":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Road'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/ds.Road'
+      security:
+      - ApiKeyAuth: []
+      summary: create road
+      tags:
+      - Roads
+  /roads/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete road by ID
+      operationId: delete-road-by-id
+      parameters:
+      - description: ID дороги
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Road'
+        "404":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Road'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/ds.Road'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete road by ID
+      tags:
+      - Roads
+    get:
+      consumes:
+      - application/json
+      description: Show road by ID
+      operationId: id
+      parameters:
+      - description: ID дороги
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ds.Road'
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Road'
+        "404":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Road'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/ds.Road'
+      summary: Get Road by ID
+      tags:
+      - Roads
+    put:
+      consumes:
+      - application/json
+      description: update road
+      operationId: update-road
+      parameters:
+      - description: ID дороги
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: consultation info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/ds.Road'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Road'
+        "404":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Road'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/ds.Road'
+      security:
+      - ApiKeyAuth: []
+      summary: update croad
+      tags:
+      - Roads
+  /roads/road_add_image/{id}:
+    post:
+      consumes:
+      - application/json
+      description: Add an road to a specific consultation by ID.
+      operationId: add-road-image
+      parameters:
+      - description: ID дороги
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Image file to be uploaded
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Road'
+        "404":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Road'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/ds.Road'
+      security:
+      - ApiKeyAuth: []
+      summary: Add road image
+      tags:
+      - Roads
+  /roads/road_travel_request/{id}:
+    post:
+      consumes:
+      - application/json
+      description: add road to travelrequest
+      operationId: add-road-to-request
+      parameters:
+      - description: ID дороги
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Road'
+        "404":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Road'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/ds.Road'
+      security:
+      - ApiKeyAuth: []
+      summary: add road to travelrequest
+      tags:
+      - Roads
+  /travelrequestroads/{requestID}/{roadID}:
+    delete:
+      consumes:
+      - application/json
+      description: delete road from travelrequest
+      operationId: delete-road-from-travelrequest
+      parameters:
+      - description: ID заявки
+        in: path
+        name: requestID
+        required: true
+        type: integer
+      - description: ID консультации
+        in: path
+        name: roadID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Консультация была удалена из заявки
+          schema:
+            type: string
+        "400":
+          description: Некорректный запрос
+          schema:
+            type: string
+        "404":
+          description: Некорректный запрос
+          schema:
+            type: string
+        "500":
+          description: Ошибка сервера
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Road From TravelRequest
+      tags:
+      - Road-TravelRequest
+  /travelrequests:
+    get:
+      description: Get all travelrequests
+      operationId: get-travelrequests
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ds.Travelrequest'
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Travelrequest'
+        "404":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Travelrequest'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/ds.Travelrequest'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Requests
+      tags:
+      - TravelRequests
+  /travelrequests/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete travelrequest by ID
+      operationId: delete-request-by-id
+      parameters:
+      - description: ID заявки
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Travelrequest'
+        "404":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Travelrequest'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/ds.Travelrequest'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete TravelRequest by ID
+      tags:
+      - TravelRequests
+    get:
+      consumes:
+      - application/json
+      description: Show roads by ID of request
+      operationId: get-roads-by-id-of-request
+      parameters:
+      - description: ID заявки
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.Response'
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Road'
+        "404":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Road'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/ds.Road'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Roads by request ID
+      tags:
+      - TravelRequests
+    put:
+      consumes:
+      - application/json
+      description: Update travelrequest by ID
+      operationId: update-travelrequest-by-id
+      parameters:
+      - description: ID заявки
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: request info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/ds.Travelrequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Travelrequest'
+        "404":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Travelrequest'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/ds.Travelrequest'
+      security:
+      - ApiKeyAuth: []
+      summary: Update TravelRequest by ID
+      tags:
+      - TravelRequests
+  /travelrequests/change-status-moderator/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update travelrequest by moderator
+      operationId: update-travelrequest-status-by-moderator
+      parameters:
+      - description: ID заявки
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Travelrequest'
+        "404":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Travelrequest'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/ds.Travelrequest'
+      security:
+      - ApiKeyAuth: []
+      summary: Update TravelRequest Status By Moderator
+      tags:
+      - TravelRequests
+  /travelrequests/change-status-user/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update travelrequest status by user
+      operationId: update-travelrequest-status-by-user
+      parameters:
+      - description: ID заявки
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Travelrequest'
+        "404":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Travelrequest'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/ds.Travelrequest'
+      security:
+      - ApiKeyAuth: []
+      summary: Update TravelRequest Status By User
+      tags:
+      - TravelRequests
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
