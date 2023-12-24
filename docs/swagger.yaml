@@ -554,41 +554,6 @@ paths:
       summary: Delete TravelRequest by ID
       tags:
       - TravelRequests
-    get:
-      consumes:
-      - application/json
-      description: Show roads by ID of request
-      operationId: get-roads-by-id-of-request
-      parameters:
-      - description: ID заявки
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/controllers.Response'
-        "400":
-          description: Некорректный запрос
-          schema:
-            $ref: '#/definitions/ds.Road'
-        "404":
-          description: Некорректный запрос
-          schema:
-            $ref: '#/definitions/ds.Road'
-        "500":
-          description: Ошибка сервера
-          schema:
-            $ref: '#/definitions/ds.Road'
-      security:
-      - ApiKeyAuth: []
-      summary: Get Roads by request ID
-      tags:
-      - TravelRequests
     put:
       consumes:
       - application/json
@@ -700,6 +665,36 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Update TravelRequest Status By User
+      tags:
+      - TravelRequests
+  /travelrequests/introduced:
+    get:
+      consumes:
+      - application/json
+      description: Show roads by ID of request
+      operationId: get-roads-by-id-of-request
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.Response'
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Road'
+        "404":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Road'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/ds.Road'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Roads by request ID
       tags:
       - TravelRequests
 securityDefinitions:

@@ -21,10 +21,17 @@ const jwtPrefix = "Bearer "
 func (a *Application) WithAuthCheck(assignedRoles ...role.Role) func(ctx *gin.Context) {
 	return func(gCtx *gin.Context) {
 		jwtStr := gCtx.GetHeader("Authorization")
-		if gCtx.Request.URL.Path == "/roads/" && jwtStr == "" {
+		fmt.Println(gCtx.Request.URL.Path)
+		fmt.Println(12)
+		fmt.Println(strings.HasPrefix(gCtx.Request.URL.Path, "/roads/?minLength"))
+		fmt.Println(gCtx.Request.URL.Path == "/roads/")
+
+		if jwtStr == "" && (gCtx.Request.URL.Path == "/roads/" || strings.HasPrefix(gCtx.Request.URL.Path, "/roads/?minLength")) {
+			fmt.Println("zdes")
 
 		} else {
 			fmt.Println("rfr")
+			fmt.Println(assignedRoles)
 			fmt.Println(jwtStr)
 			if !strings.HasPrefix(jwtStr, jwtPrefix) { // если нет префикса то нас дурят!
 				fmt.Println("ПЛОХО 1")

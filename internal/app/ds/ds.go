@@ -15,8 +15,8 @@ type Road struct {
 	Numberofstripes string `gorm:"size:10"`
 	Speed           int
 	Price           int
-	Image           string `gorm:"size:255"`
-	Statusroad      string `gorm:"size:10"`
+	Image           string `gorm:"size:255;default:http://localhost:9000/images-bucket/roads/1/image;not null"`
+	Statusroad      string `gorm:"size:10;default:active;not null"`
 	Startofsection  int
 	Endofsection    int
 }
@@ -29,6 +29,7 @@ type Travelrequest struct {
 	Formationdate   time.Time `gorm:"default:NULL"`
 	Completiondate  time.Time `gorm:"default:NULL"`
 	Moderatorid     uint      `gorm:"default:NULL"`
+	Paidstatus      string    `gorm:"default:NULL"`
 }
 
 type Travelrequestroad struct {

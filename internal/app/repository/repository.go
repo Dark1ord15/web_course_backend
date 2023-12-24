@@ -1,9 +1,11 @@
 package repository
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
-
+	"net/http"
 	"strings"
 
 	"Road_services/internal/app/ds"
@@ -63,6 +65,7 @@ func (r *Repository) SearchRoads(searchQuery string) ([]ds.Road, error) {
 }
 
 func (r *Repository) CreateRoad(road ds.Road) error {
+	// road.Statusroad = "active"
 	return r.db.Create(&road).Error
 }
 
@@ -144,12 +147,18 @@ func (r *Repository) GetAllTravelRequests() ([]ds.Travelrequest, error) {
 	return requests, nil
 }
 
+// Получение всех заявок пользователя с учетом фильтрации по статусу
 func (r *Repository) GetAllUserRequests(userID uint) ([]ds.Travelrequest, error) {
 	var requests []ds.Travelrequest
-	err := r.db.Find(&requests, "userid = ?", userID).Error
+	err := r.db.
+		Where("userid = ? AND requeststatus NOT IN (?, ?)", userID, "deleted", "introduced").
+		Find(&requests).
+		Error
+
 	if err != nil {
 		return nil, err
 	}
+
 	return requests, nil
 }
 
@@ -179,6 +188,28 @@ func (r *Repository) UpdateTravelRequest(id uint, updatedRequest ds.Travelreques
 		return err
 	}
 	return nil
+}
+
+// UpdateTravelRequest обновляет заявку с заданным ID и устанавливает moderatorid.
+func (r *Repository) UpdateTravelRequest2(id, adminID uint, updatedRequest ds.Travelrequest) error {
+	// Обновление полей заявки и moderatorid.
+	if err := r.db.Model(ds.Travelrequest{}).Where("travelrequestid = ?", id).Updates(map[string]interface{}{
+		"Requeststatus": updatedRequest.Requeststatus,
+		"Moderatorid":   adminID,
+	}).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+// GetUserByID возвращает пользователя по его идентификатору.
+func (r *Repository) GetUserByID(userID uint) (ds.User, error) {
+	var user ds.User
+	result := r.db.First(&user, userID)
+	if result.Error != nil {
+		return ds.User{}, result.Error
+	}
+	return user, nil
 }
 
 // Удаление заявки
@@ -379,4 +410,60 @@ func (r *Repository) GetTravelRequestByID2(id uint) (ds.Travelrequest, error) {
 		return ds.Travelrequest{}, err
 	}
 	return request, nil
+}
+
+// PayTravelRequest отправляет запрос на оплату и возвращает результат
+func (r *Repository) PayTravelRequest(id string) (string, error) {
+	// Формируем URL для запроса оплаты
+	paymentURL := "http://127.0.0.1:4141/pay/?token=YvkFu1X0OKQ"
+
+	// Отправляем GET-запрос
+	resp, err := http.Get(paymentURL)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	// Проверяем статус ответа
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	// Читаем тело ответа
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	// Анализируем JSON-ответ
+	var result struct {
+		Result string `json:"result"`
+	}
+	if err := json.Unmarshal(body, &result); err != nil {
+		return "", err
+	}
+
+	return result.Result, nil
+}
+
+// UpdatePaidStatus обновляет статус оплаты в заявке по её ID
+func (r *Repository) UpdatePaidStatus(id string, paidStatus string) error {
+	// Обновляем статус оплаты в базе данных
+	if err := r.db.Model(&ds.Travelrequest{}).Where("travelrequestid = ?", id).Updates(map[string]interface{}{"paidstatus": paidStatus}).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *Repository) DeleteActiveRequest(userID uint) error {
+
+	request := &ds.Travelrequest{}
+	err := r.db.Find(request, "requeststatus = 'introduced' AND userid = ?", userID).Error
+	if err != nil {
+		return err
+	}
+
+	return r.db.Exec("UPDATE travelrequests SET requeststatus = 'deleted' WHERE travelrequestid=? AND userid=?", request.Travelrequestid, userID).Error
+
 }

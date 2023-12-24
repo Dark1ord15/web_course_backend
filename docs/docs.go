@@ -712,7 +712,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/travelrequests/{id}": {
+        "/travelrequests/introduced": {
             "get": {
                 "security": [
                     {
@@ -731,15 +731,6 @@ const docTemplate = `{
                 ],
                 "summary": "Get Roads by request ID",
                 "operationId": "get-roads-by-id-of-request",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID заявки",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -766,7 +757,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/travelrequests/{id}": {
             "put": {
                 "security": [
                     {

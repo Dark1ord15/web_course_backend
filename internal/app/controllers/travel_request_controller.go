@@ -22,6 +22,17 @@ func NewTravelRequestController(repo *repository.Repository) *TravelRequestContr
 	}
 }
 
+type GetResponse struct {
+	ID             uint      `json:"Travelrequestid"`
+	User           string    `json:"User"`
+	RequestStatus  string    `json:"Requeststatus"`
+	CreationDate   time.Time `json:"Creationdate"`
+	FormationDate  time.Time `json:"Formationdate"`
+	CompletionDate time.Time `json:"Completiondate"`
+	Moderator      string    `json:"Moderator"`
+	PaidStatus     string    `json:"Paidstatus"`
+}
+
 // @Summary Get Requests
 // @Security ApiKeyAuth
 // @Description Get all travelrequests
@@ -33,8 +44,9 @@ func NewTravelRequestController(repo *repository.Repository) *TravelRequestContr
 // @Failure 404 {object} ds.Travelrequest "Некорректный запрос"
 // @Failure 500 {object} ds.Travelrequest "Ошибка сервера"
 // @Router /travelrequests [get]
+// ListTravelRequests обрабатывает запрос на получение списка заявок с дорогами.
+// ListTravelRequests обрабатывает запрос на получение списка заявок с дорогами.
 func (tc *TravelRequestController) ListTravelRequests(c *gin.Context) {
-
 	userID, contextError := c.Value("userID").(uint)
 	if !contextError {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -43,6 +55,7 @@ func (tc *TravelRequestController) ListTravelRequests(c *gin.Context) {
 		})
 		return
 	}
+
 	var userRole role.Role
 	userRole, contextError = c.Value("userRole").(role.Role)
 	if !contextError {
@@ -60,6 +73,7 @@ func (tc *TravelRequestController) ListTravelRequests(c *gin.Context) {
 
 	var startDate, endDate time.Time
 	var err error
+
 	if userRole == role.Buyer {
 		requests, err := tc.repo.GetAllUserRequests(userID)
 		if err != nil {
@@ -73,6 +87,7 @@ func (tc *TravelRequestController) ListTravelRequests(c *gin.Context) {
 		c.JSON(http.StatusOK, requests)
 		return
 	}
+
 	// Преобразуйте строки с датами в объекты time.Time, если они заданы.
 	if startDateStr != "" {
 		startDate, err = time.Parse("2006-01-02", startDateStr)
@@ -94,6 +109,9 @@ func (tc *TravelRequestController) ListTravelRequests(c *gin.Context) {
 		endDate = endDate.Add(23*time.Hour + 59*time.Minute + 59*time.Second + 999999*time.Nanosecond)
 	}
 
+	// Срез для хранения соответствующих заявок
+	var matchingRequests []GetResponse
+
 	// Получите список всех заявок из репозитория.
 	requests, err := tc.repo.GetAllTravelRequests()
 	if err != nil {
@@ -101,41 +119,55 @@ func (tc *TravelRequestController) ListTravelRequests(c *gin.Context) {
 		return
 	}
 
-	// Создайте слайс для хранения заявок, которые соответствуют фильтру.
-	filteredRequests := []ds.Travelrequest{}
-
-	// Фильтруйте заявки в соответствии с заданным статусом и диапазоном дат.
 	for _, request := range requests {
-		if request.Requeststatus != "deleted" { // Исключаем удаленные заявки
-			if (status == "" || request.Requeststatus == status) &&
-				(startDate.IsZero() || request.Formationdate.After(startDate)) &&
-				(endDate.IsZero() || request.Formationdate.Before(endDate)) {
-				filteredRequests = append(filteredRequests, request)
+		if request.Requeststatus != "deleted" &&
+			(status == "" || request.Requeststatus == status) &&
+			(startDate.IsZero() || request.Formationdate.After(startDate)) &&
+			(endDate.IsZero() || request.Formationdate.Before(endDate)) {
+
+			// Получить информацию о пользователе
+			user, err := tc.repo.GetUserByID(request.Userid)
+			if err != nil {
+				// Пропустить заявку в случае ошибки, продолжить с следующей
+				continue
 			}
+
+			// Получить информацию о модераторе
+			moderator := ""
+			if request.Moderatorid != 0 {
+				moderatorUser, err := tc.repo.GetUserByID(request.Moderatorid)
+				if err != nil {
+					// Пропустить заявку в случае ошибки, продолжить с следующей
+					continue
+				}
+				moderator = moderatorUser.Name
+			}
+
+			response := GetResponse{
+				ID:             request.Travelrequestid,
+				User:           user.Name,
+				RequestStatus:  request.Requeststatus,
+				CreationDate:   request.Creationdate,
+				FormationDate:  request.Formationdate,
+				CompletionDate: request.Completiondate,
+				Moderator:      moderator,
+				PaidStatus:     request.Paidstatus,
+			}
+
+			// Добавить соответствующую заявку в срез
+			matchingRequests = append(matchingRequests, response)
 		}
 	}
 
-	if len(filteredRequests) == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"message": "Нет результатов, соответствующих заданным параметрам"})
-		return
-	}
-	// Верните список заявок, соответствующих фильтру.
-	c.JSON(http.StatusOK, filteredRequests)
+	// Отправить срез в JSON после завершения цикла
+	c.JSON(http.StatusOK, matchingRequests)
 }
 
-// RoadsResponse описывает структуру ответа о дорогах.
-type RoadsResponse struct {
-	RoadNames  []string `json:"RoadNames"`
-	RoadImages []string `json:"RoadImages"`
-}
-
-// Response описывает структуру ответа о заявке с дорогами.
-type Response struct {
-	ID            uint          `json:"ID"`
-	CreationDate  time.Time     `json:"CreationDate"`
-	FormationDate time.Time     `json:"FormationDate"`
-	RequestStatus string        `json:"RequestStatus"`
-	RoadsResponse RoadsResponse `json:"RoadsResponse"`
+// RoadInfo представляет информацию о дороге.
+type RoadInfo struct {
+	ID    uint   `json:"Id"`
+	Name  string `json:"Name"`
+	Price int    `json:"Price"`
 }
 
 // @Summary Get Roads by request ID
@@ -145,7 +177,7 @@ type Response struct {
 // @ID get-roads-by-id-of-request
 // @Accept       json
 // @Produce      json
-// @Success 200 {object} Response
+// @Success 200 {array} RoadInfo
 // @Failure 400 {object} ds.Road "Некорректный запрос"
 // @Failure 404 {object} ds.Road "Некорректный запрос"
 // @Failure 500 {object} ds.Road "Ошибка сервера"
@@ -159,18 +191,13 @@ func (tc *TravelRequestController) GetTravelRequestByID(c *gin.Context) {
 		})
 		return
 	}
+
 	// Получите заявку с указанным ID из репозитория.
 	request, err := tc.repo.GetTravelRequestByID(uint(userID))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Заявка не найдена"})
 		return
 	}
-
-	// Проверьте, что заявка не удалена.
-	// if request.Requeststatus == "deleted" {
-	// 	c.JSON(http.StatusNotFound, gin.H{"error": "Заявка не найдена"})
-	// 	return
-	// }
 
 	// Получите связанные с заявкой дороги.
 	roads, err := tc.repo.GetRoadsByTravelRequest(request.Travelrequestid, request.Requeststatus)
@@ -179,40 +206,19 @@ func (tc *TravelRequestController) GetTravelRequestByID(c *gin.Context) {
 		return
 	}
 
-	// Создайте структуру для хранения информации о дорогах и заявке.
-	type RoadsResponse struct {
-		RoadNames  []string `json:"RoadNames"`
-		RoadImages []string `json:"RoadImages"`
-	}
-
-	roadsResponse := RoadsResponse{
-		RoadNames:  []string{},
-		RoadImages: []string{},
-	}
+	// Создайте структуру для хранения информации о дорогах.
+	var roadInfoList []RoadInfo
 
 	for _, road := range roads {
-		roadsResponse.RoadNames = append(roadsResponse.RoadNames, road.Name)
-		roadsResponse.RoadImages = append(roadsResponse.RoadImages, road.Image)
+		roadInfo := RoadInfo{
+			ID:    road.Roadid,
+			Name:  road.Name,
+			Price: road.Price,
+		}
+		roadInfoList = append(roadInfoList, roadInfo)
 	}
 
-	// Включите информацию о заявке в ответ.
-	type Response struct {
-		ID            uint          `json:"ID"`
-		CreationDate  time.Time     `json:"CreationDate"`
-		FormationDate time.Time     `json:"FormationDate"`
-		RequestStatus string        `json:"RequestStatus"`
-		RoadsResponse RoadsResponse `json:"RoadsResponse"`
-	}
-
-	response := Response{
-		ID:            request.Travelrequestid,
-		CreationDate:  request.Creationdate,
-		FormationDate: request.Formationdate,
-		RequestStatus: request.Requeststatus,
-		RoadsResponse: roadsResponse,
-	}
-
-	c.JSON(http.StatusOK, response)
+	c.JSON(http.StatusOK, roadInfoList)
 }
 
 // @Summary Update TravelRequest by ID
@@ -344,15 +350,21 @@ func (tc *TravelRequestController) ChangeRequestStatusByUser(c *gin.Context) {
 // @Failure 500 {object} ds.Travelrequest "Ошибка сервера"
 // @Router /travelrequests/change-status-moderator/{id} [put]
 func (tc *TravelRequestController) ChangeRequestStatusByModerator(c *gin.Context) {
+	adminID, contextError := c.Value("userID").(uint)
+	if !contextError {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Status":  "Failed",
+			"Message": "ошибка при авторизации",
+		})
+		return
+	}
 	// Получите ID заявки из параметров запроса.
-	fmt.Println("me tut 1")
 	requestIDStr := c.Param("id")
 	requestID, err := strconv.Atoi(requestIDStr)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный request ID"})
 		return
 	}
-	fmt.Println("me tut 2")
 	// Получите статус заявки из параметров запроса.
 	status := c.Query("status")
 
@@ -361,25 +373,23 @@ func (tc *TravelRequestController) ChangeRequestStatusByModerator(c *gin.Context
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный статус. Он должен быть 'completed' или 'rejected'"})
 		return
 	}
-	fmt.Println("me tut 3")
 	// Здесь проверьте, что заявка с указанным ID существует и имеет статус 'formed'.
 	request, err := tc.repo.GetTravelRequestByID2(uint(requestID))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Запрос не найден"})
 		return
 	}
-	fmt.Println("me tut4")
 	if request.Requeststatus != "formed" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Для изменений статус запрос должен быть'formed'"})
 		return
 	}
-	fmt.Println("me tut 5")
 	// Здесь обновите статус заявки на 'completed' или 'rejected' в репозитории.
 	request.Requeststatus = status
-	if err := tc.repo.UpdateTravelRequest(request.Travelrequestid, request); err != nil {
+	if err := tc.repo.UpdateTravelRequest2(request.Travelrequestid, adminID, request); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
 	fmt.Println("me tut 6")
 	c.JSON(http.StatusOK, gin.H{"message": "Статус успешно обнавлен"})
 }
@@ -436,4 +446,63 @@ func (tc *TravelRequestController) SoftDeleteTravelRequest(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Заявка успешно удалена"})
+}
+
+// PayTravelRequest обрабатывает оплату заявки
+// PayTravelRequest обрабатывает оплату заявки
+func (t *TravelRequestController) PayTravelRequest(c *gin.Context) {
+	id := c.Param("id")
+
+	// Вызываем метод оплаты из репозитория
+	paidStatus, err := t.repo.PayTravelRequest(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to process payment", "details": err.Error()})
+		return
+	}
+
+	// Обновляем статус оплаты в базе данных
+	if err := t.repo.UpdatePaidStatus(id, paidStatus); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update paid status", "details": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"result": paidStatus})
+}
+
+// ChangePaidStatus обновляет статус оплаты в заявке
+func (t *TravelRequestController) ChangePaidStatus(c *gin.Context) {
+	// Парсим JSON из тела запроса
+	var requestBody map[string]interface{}
+	if err := c.ShouldBindJSON(&requestBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON format"})
+		return
+	}
+
+	// Проверяем наличие ключа "12345" в JSON
+	if apiKey, ok := requestBody["key"]; !ok || apiKey != "12345" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid API key"})
+		return
+	}
+
+	// Извлекаем значение id из JSON
+	id, ok := requestBody["id"].(string)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid 'id' in JSON"})
+		return
+	}
+
+	// Извлекаем значение paidStatus из JSON
+	paidStatus, ok := requestBody["paidstatus"].(string)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid 'paidstatus' in JSON"})
+		return
+	}
+
+	// Вызываем метод обновления статуса оплаты из репозитория
+	if err := t.repo.UpdatePaidStatus(id, paidStatus); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update paid status" + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"result": "Статус оплаты изменен"})
 }

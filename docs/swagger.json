@@ -706,7 +706,7 @@
                 }
             }
         },
-        "/travelrequests/{id}": {
+        "/travelrequests/introduced": {
             "get": {
                 "security": [
                     {
@@ -725,15 +725,6 @@
                 ],
                 "summary": "Get Roads by request ID",
                 "operationId": "get-roads-by-id-of-request",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID заявки",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -760,7 +751,9 @@
                         }
                     }
                 }
-            },
+            }
+        },
+        "/travelrequests/{id}": {
             "put": {
                 "security": [
                     {
