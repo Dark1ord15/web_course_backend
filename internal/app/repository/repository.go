@@ -140,7 +140,10 @@ func (r *Repository) AddRoadToLastTravelRequest(roadID uint) error {
 // Получение всех заявок
 func (r *Repository) GetAllTravelRequests() ([]ds.Travelrequest, error) {
 	var requests []ds.Travelrequest
-	err := r.db.Find(&requests).Error
+	err := r.db.
+		Where("requeststatus NOT IN (?, ?)", "deleted", "introduced").
+		Order("travelrequestid DESC").
+		Find(&requests).Error
 	if err != nil {
 		return nil, err
 	}
@@ -152,6 +155,7 @@ func (r *Repository) GetAllUserRequests(userID uint) ([]ds.Travelrequest, error)
 	var requests []ds.Travelrequest
 	err := r.db.
 		Where("userid = ? AND requeststatus NOT IN (?, ?)", userID, "deleted", "introduced").
+		Order("travelrequestid DESC").
 		Find(&requests).
 		Error
 
@@ -162,10 +166,10 @@ func (r *Repository) GetAllUserRequests(userID uint) ([]ds.Travelrequest, error)
 	return requests, nil
 }
 
-func (r *Repository) GetTravelRequestByID(userID uint) (ds.Travelrequest, error) {
+func (r *Repository) GetTravelRequestByID(requestID uint) (ds.Travelrequest, error) {
 	var travelRequest ds.Travelrequest
 
-	err := r.db.Where("userid = ? AND requeststatus = ?", userID, "introduced").First(&travelRequest).Error
+	err := r.db.Where("travelrequestid = ?", requestID).First(&travelRequest).Error
 	if err != nil {
 		return ds.Travelrequest{}, err
 	}

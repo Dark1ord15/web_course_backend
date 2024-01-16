@@ -78,7 +78,6 @@ func (rc *RoadController) ListRoads(c *gin.Context) {
 // @Description Show road by ID
 // @Tags Roads
 // @ID id
-// @Accept       json
 // @Produce      json
 // @Param        id   path      int  true  "ID дороги"
 // @Success 200 {object} ds.Road
